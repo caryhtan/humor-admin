@@ -59,11 +59,15 @@ export default function HumorMixPage() {
     const parsedCaptionCount =
       editCaptionCount.trim() === "" ? null : Number(editCaptionCount);
 
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData?.user?.id;
+    
     const { error } = await supabase
       .from("humor_flavor_mix")
       .update({
         humor_flavor_id: parsedHumorFlavorId,
         caption_count: parsedCaptionCount,
+        modified_by_user_id: userId, // ✅ REQUIRED
       })
       .eq("id", id);
 

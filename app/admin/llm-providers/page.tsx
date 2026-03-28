@@ -44,9 +44,14 @@ export default function LlmProvidersPage() {
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
 
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData?.user?.id;
+    
     const { error } = await supabase.from("llm_providers").insert([
       {
         name: newName || null,
+        created_by_user_id: userId,
+        modified_by_user_id: userId,
       },
     ]);
 
@@ -69,10 +74,16 @@ export default function LlmProvidersPage() {
   }
 
   async function handleUpdate(id: number) {
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData?.user?.id;
+    
     const { error } = await supabase
       .from("llm_providers")
       .update({
         name: editName || null,
+    
+        // ✅ REQUIRED
+        modified_by_user_id: userId,
       })
       .eq("id", id);
 

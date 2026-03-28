@@ -44,9 +44,21 @@ export default function AllowedSignupDomainsPage() {
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
 
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      console.log("user error =", userError);
+      return;
+    }
+
     const { error } = await supabase.from("allowed_signup_domains").insert([
       {
         apex_domain: newApexDomain || null,
+        created_by_user_id: user.id,
+        modified_by_user_id: user.id,
       },
     ]);
 
@@ -69,10 +81,21 @@ export default function AllowedSignupDomainsPage() {
   }
 
   async function handleUpdate(id: number) {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      console.log("user error =", userError);
+      return;
+    }
+
     const { error } = await supabase
       .from("allowed_signup_domains")
       .update({
         apex_domain: editApexDomain || null,
+        modified_by_user_id: user.id,
       })
       .eq("id", id);
 

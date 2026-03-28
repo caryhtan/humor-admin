@@ -60,6 +60,9 @@ export default function LlmModelsPage() {
     setFormError(null);
     setFormSuccess(null);
 
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData?.user?.id;
+    
     const { error } = await supabase.from("llm_models").insert([
       {
         name: newName || null,
@@ -67,6 +70,10 @@ export default function LlmModelsPage() {
           newProviderId.trim() === "" ? null : Number(newProviderId),
         provider_model_id: newProviderModelId || null,
         is_temperature_supported: newIsTemperatureSupported,
+    
+        // ✅ REQUIRED
+        created_by_user_id: userId,
+        modified_by_user_id: userId,
       },
     ]);
 
@@ -107,6 +114,9 @@ export default function LlmModelsPage() {
     setFormError(null);
     setFormSuccess(null);
 
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData?.user?.id;
+    
     const { error } = await supabase
       .from("llm_models")
       .update({
@@ -115,6 +125,7 @@ export default function LlmModelsPage() {
           editProviderId.trim() === "" ? null : Number(editProviderId),
         provider_model_id: editProviderModelId || null,
         is_temperature_supported: editIsTemperatureSupported,
+        modified_by_user_id: userId,
       })
       .eq("id", id);
 

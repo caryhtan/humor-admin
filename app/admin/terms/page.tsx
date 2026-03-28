@@ -57,6 +57,16 @@ export default function TermsPage() {
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
 
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      console.log("user error =", userError);
+      return;
+    }
+
     const { error } = await supabase.from("terms").insert([
       {
         term: newTerm || null,
@@ -64,6 +74,8 @@ export default function TermsPage() {
         example: newExample || null,
         priority: newPriority.trim() === "" ? null : Number(newPriority),
         term_type_id: newTermTypeId.trim() === "" ? null : Number(newTermTypeId),
+        created_by_user_id: user.id,
+        modified_by_user_id: user.id,
       },
     ]);
 
@@ -98,6 +110,16 @@ export default function TermsPage() {
   }
 
   async function handleUpdate(id: number) {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      console.log("user error =", userError);
+      return;
+    }
+
     const { error } = await supabase
       .from("terms")
       .update({
@@ -106,6 +128,7 @@ export default function TermsPage() {
         example: editExample || null,
         priority: editPriority.trim() === "" ? null : Number(editPriority),
         term_type_id: editTermTypeId.trim() === "" ? null : Number(editTermTypeId),
+        modified_by_user_id: user.id,
       })
       .eq("id", id);
 

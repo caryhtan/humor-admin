@@ -33,11 +33,14 @@ export default function AdminLayout({
 
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("is_superadmin")
+          .select("id, is_superadmin, is_matrix_admin")
           .eq("id", user.id)
           .maybeSingle();
 
-        if (profileError || !profile?.is_superadmin) {
+        if (
+          profileError ||
+          !(profile?.is_superadmin || profile?.is_matrix_admin)
+        ) {
           router.replace("/login");
           return;
         }

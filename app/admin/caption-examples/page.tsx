@@ -57,6 +57,16 @@ export default function CaptionExamplesPage() {
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
 
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      console.log("user error =", userError);
+      return;
+    }
+
     const { error } = await supabase.from("caption_examples").insert([
       {
         image_description: newImageDescription || null,
@@ -64,6 +74,8 @@ export default function CaptionExamplesPage() {
         explanation: newExplanation || null,
         priority: newPriority.trim() === "" ? null : Number(newPriority),
         image_id: newImageId.trim() === "" ? null : newImageId,
+        created_by_user_id: user.id,
+        modified_by_user_id: user.id,
       },
     ]);
 
@@ -98,6 +110,16 @@ export default function CaptionExamplesPage() {
   }
 
   async function handleUpdate(id: number) {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      console.log("user error =", userError);
+      return;
+    }
+
     const { error } = await supabase
       .from("caption_examples")
       .update({
@@ -106,6 +128,7 @@ export default function CaptionExamplesPage() {
         explanation: editExplanation || null,
         priority: editPriority.trim() === "" ? null : Number(editPriority),
         image_id: editImageId.trim() === "" ? null : editImageId,
+        modified_by_user_id: user.id,
       })
       .eq("id", id);
 

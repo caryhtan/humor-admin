@@ -45,9 +45,14 @@ export default function WhitelistEmailAddressesPage() {
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
 
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData?.user?.id;
+    
     const { error } = await supabase.from("whitelist_email_addresses").insert([
       {
         email_address: newEmailAddress || null,
+        created_by_user_id: userId,
+        modified_by_user_id: userId,
       },
     ]);
 
@@ -70,10 +75,14 @@ export default function WhitelistEmailAddressesPage() {
   }
 
   async function handleUpdate(id: number) {
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData?.user?.id;
+    
     const { error } = await supabase
       .from("whitelist_email_addresses")
       .update({
         email_address: editEmailAddress || null,
+        modified_by_user_id: userId,
       })
       .eq("id", id);
 

@@ -106,6 +106,9 @@ export default function ImagesPage() {
         finalUrl = await uploadFileAndGetPublicUrl(newFile, user?.id ?? null);
       }
 
+      const { data: userData } = await supabase.auth.getUser();
+      const userId = userData?.user?.id;
+      
       const { data, error } = await supabase
         .from("images")
         .insert([
@@ -116,7 +119,11 @@ export default function ImagesPage() {
             additional_context: newAdditionalContext || null,
             is_public: newIsPublic,
             is_common_use: newIsCommonUse,
-            profile_id: user?.id ?? null,
+            profile_id: userId,
+      
+            // ✅ REQUIRED
+            created_by_user_id: userId,
+            modified_by_user_id: userId,
           },
         ])
         .select();
@@ -173,17 +180,21 @@ export default function ImagesPage() {
     setFormError(null);
     setFormSuccess(null);
 
-    const { error } = await supabase
-      .from("images")
-      .update({
-        url: editUrl || null,
-        image_description: editImageDescription || null,
-        celebrity_recognition: editCelebrityRecognition || null,
-        additional_context: editAdditionalContext || null,
-        is_public: editIsPublic,
-        is_common_use: editIsCommonUse,
-      })
-      .eq("id", id);
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData?.user?.id;
+  
+  const { error } = await supabase
+    .from("images")
+    .update({
+      url: editUrl || null,
+      image_description: editImageDescription || null,
+      celebrity_recognition: editCelebrityRecognition || null,
+      additional_context: editAdditionalContext || null,
+      is_public: editIsPublic,
+      is_common_use: editIsCommonUse,
+      modified_by_user_id: userId,
+    })
+    .eq("id", id);
 
     console.log("update image error =", error);
 
